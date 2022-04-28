@@ -147,6 +147,14 @@ void TestDataSet(DataSetType dataset) {
     data_reader.PutEnronMailData(data);
     break;
   }
+  case kStackOverFlow:{
+    data_reader.PutStackOverFlowData(data);
+    break;
+  }
+  case kStackOverFlowComment:{
+    data_reader.PutStackOverFlowCommentData(data);
+    break;
+  }
   default: {
     cerr << "dataset type not support" << endl;
     return;
@@ -156,7 +164,7 @@ void TestDataSet(DataSetType dataset) {
   ScanSimilarRecords(data);
   cout << "start delta compress" << endl;
   Statistics::PrintHead();
-  for (uint8_t i = kXDelta; i < kMaxDeltaCompression; ++i) {
+  for (uint8_t i = kGdelta_original; i < kMaxDeltaCompression; ++i) {
     DeltaCompressType type = (DeltaCompressType)i;
     Statistics stat;
     stat.type = type;
@@ -171,7 +179,7 @@ void TestDataSet(DataSetType dataset) {
 }
 
 int main() {
-  for (uint8_t dataset = kWikipedia; dataset <= kEnronMail; ++dataset)
+  for (uint8_t dataset = kWikipedia; dataset < kNumberOfDataSet; ++dataset)
     TestDataSet((DataSetType)dataset);
   return 0;
 }

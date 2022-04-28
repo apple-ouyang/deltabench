@@ -57,7 +57,8 @@ enum DataSetType : uint8_t {
   kWikipedia,
   kEnronMail,
   kStackOverFlow,
-  kStackOverFlowComment
+  kStackOverFlowComment,
+  kNumberOfDataSet
 };
 
 const path data_path = "/home/wht/tao-db/test-titan/dataset/DataSet/";
@@ -242,82 +243,82 @@ public:
     }
   }
 
-  // void ReadParseStackOverFlowDataAndPut() {
-  //   for (fs::recursive_directory_iterator file(stack_overflow_directory),
-  //        file_end;
-  //        file != file_end; ++file) {
-  //     if (!is_directory(file->path())) {
-  //       fs::ifstream fin(file->path());
-  //       string line;
-  //       while (getline(fin, line)) {
-  //         if (line.size() < 3)
-  //           continue;
-  //         // find record start with <row
-  //         size_t found = line.find("<row");
-  //         if (found == string::npos) {
-  //           continue;
-  //         }
+  void ReadParseStackOverFlowDataAndPut(AllData &data) {
+    for (fs::recursive_directory_iterator file(stack_overflow_directory),
+         file_end;
+         file != file_end; ++file) {
+      if (!is_directory(file->path())) {
+        fs::ifstream fin(file->path());
+        string line;
+        while (getline(fin, line)) {
+          if (line.size() < 3)
+            continue;
+          // find record start with <row
+          size_t found = line.find("<row");
+          if (found == string::npos) {
+            continue;
+          }
 
-  //         size_t start = line.rfind(" Id=");
-  //         //<row  ...  Id="12345" ... ></row>
-  //         // start:    ^
-  //         assert(start != string::npos);
+          size_t start = line.rfind(" Id=");
+          //<row  ...  Id="12345" ... ></row>
+          // start:    ^
+          assert(start != string::npos);
 
-  //         start += 5;
-  //         //<row  ... Id="12345" ... ></row>
-  //         // start:        ^
+          start += 5;
+          //<row  ... Id="12345" ... ></row>
+          // start:        ^
 
-  //         size_t end = line.find('"', start);
-  //         //<row  ... Id="12345" ... ></row>
-  //         // end:               ^
+          size_t end = line.find('"', start);
+          //<row  ... Id="12345" ... ></row>
+          // end:               ^
 
-  //         assert(end != string::npos);
+          assert(end != string::npos);
 
-  //         // key = Id = "12345"
-  //         string key = line.substr(start, end - start);
-  //         string &value = line;
-  //         Put(key, value);
-  //       }
-  //     }
-  //     // we count files as finish, not records this time.
-  //     if (IsFinish())
-  //       break;
-  //   }
-  // }
+          // key = Id = "12345"
+          string key = line.substr(start, end - start);
+          string &value = line;
+          Put(key, value, data);
+        }
+      }
+      // we count files as finish, not records this time.
+      if (IsFinish())
+        break;
+    }
+  }
 
-  // void ReadParseStackOverFlowCommentFileAndPut() {
-  //   fs::ifstream fin(stack_overflow_comment_file);
-  //   string line;
-  //   const int kIdStartPosition = 11;
-  //   while (getline(fin, line)) {
-  //     // every record has this pattern:
-  //     //  <row Id="12345" .../>
-  //     // 01234567890
-  //     // so we can find the Id through finding the right quotation after the
-  //     // left quotation
+  void ReadParseStackOverFlowCommentFileAndPut(AllData &data) {
+    fs::ifstream fin(stack_overflow_comment_file);
+    string line;
+    const int kIdStartPosition = 11;
+    while (getline(fin, line)) {
+      // every record has this pattern:
+      //  <row Id="12345" .../>
+      // 01234567890
+      // so we can find the Id through finding the right quotation after the
+      // left quotation
 
-  //     // some other lines, like start and end of the Comment.xml is not
-  //     started
-  //     // as "  <row"
-  //     if (line.substr(0, 6) != "  <row") {
-  //       // cout << line << '\n';
-  //       // cout << "doesn't find <row" << "\n\n";
-  //       continue;
-  //     }
+      // some other lines, like start and end of the Comment.xml is not started
+      // as "  <row"
+      if (line.substr(0, 6) != "  <row") {
+        // cout << line << '\n';
+        // cout << "doesn't find <row" << "\n\n";
+        continue;
+      }
 
-  //     // make sure <row follows the Id=
-  //     assert(line.substr(7, 3) == "Id=");
+      // make sure <row follows the Id=
+      assert(line.substr(7, 3) == "Id=");
 
-  //     // POS_ID_START=11, means the first number of the Id
-  //     size_t pos_id_end = line.find('"', kIdStartPosition);
-  //     assert(pos_id_end != string::npos);
+      // POS_ID_START=11, means the first number of the Id
+      size_t pos_id_end = line.find('"', kIdStartPosition);
+      assert(pos_id_end != string::npos);
 
-  //     string key = line.substr(kIdStartPosition, pos_id_end -
-  //     kIdStartPosition); string &value = line; Put(key, value); if
-  //     (IsFinish())
-  //       break;
-  //   }
-  // }
+      string key = line.substr(kIdStartPosition, pos_id_end - kIdStartPosition);
+      string &value = line;
+      Put(key, value, data);
+      if (IsFinish())
+        break;
+    }
+  }
 
   void PutWikipediaData(AllData &data) {
     ReadDataPrepare(kWikipedia);
@@ -331,17 +332,17 @@ public:
     Finish(data);
   }
 
-  // void PutStackOverFlowData(AllData &data) {
-  //   ReadDataPrepare(kStackOverFlow);
-  //   ReadParseStackOverFlowDataAndPut(data);
-  //   Finish();
-  // }
+  void PutStackOverFlowData(AllData &data) {
+    ReadDataPrepare(kStackOverFlow);
+    ReadParseStackOverFlowDataAndPut(data);
+    Finish(data);
+  }
 
-  // void PutStackOverFlowCommentData(AllData &data) {
-  //   ReadDataPrepare(kStackOverFlowComment);
-  //   ReadParseStackOverFlowCommentFileAndPut(data);
-  //   Finish();
-  // }
+  void PutStackOverFlowCommentData(AllData &data) {
+    ReadDataPrepare(kStackOverFlowComment);
+    ReadParseStackOverFlowCommentFileAndPut(data);
+    Finish(data);
+  }
 
   size_t to_be_read_;
   size_t has_been_read_ = 0;

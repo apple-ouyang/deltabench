@@ -6,6 +6,7 @@
 #include "xdelta/xdelta3/xdelta3.h"
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <memory>
 
 bool GoodCompressionRatio(size_t compressed_size, size_t raw_size) {
@@ -47,7 +48,8 @@ bool DeltaCompress(DeltaCompressType type, const string &input,
     break;
   }
   case kEDelta: {
-    if (input.length() > std::numeric_limits<uint32_t>::max()) {
+    if (input.length() > numeric_limits<uint32_t>::max() ||
+        base.length() >= numeric_limits<uint32_t>::max()) {
       // Can't compress more than 4GB
       ok = false;
       break;
@@ -60,7 +62,8 @@ bool DeltaCompress(DeltaCompressType type, const string &input,
     break;
   }
   case kGDelta: {
-    if (input.length() > std::numeric_limits<uint32_t>::max()) {
+    if (input.length() > numeric_limits<uint32_t>::max() ||
+        base.length() >= numeric_limits<uint32_t>::max()) {
       // Can't compress more than 4GB
       ok = false;
       break;
