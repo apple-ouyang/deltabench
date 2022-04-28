@@ -1,0 +1,13 @@
+[submodule "gdelta"]
+	path = gdelta
+	url = git@github.com:apple-ouyang/gdelta.git
+[submodule "edelta"]
+	path = edelta
+	url = git@github.com:apple-ouyang/edelta.git
+[submodule "xdelta"]
+	path = xdelta
+	url = git@github.com:apple-ouyang/xdelta.git
+[submodule "gdelta_origianl"]
+	path = gdelta_original
+	url = git@github.com:apple-ouyang/gdelta.git
+	branch = original_gdelta
