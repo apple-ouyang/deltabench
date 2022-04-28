@@ -57,7 +57,7 @@ struct Statistics {
            TimespecToSeconds(compressed_time),
            TimespecToSeconds(uncompressed_time));
     if (uncompress_fail)
-      printf("Uncompress fail=%zu\n", uncompress_fail);
+      printf("!!!!!   Uncompress fail %zu times   !!!!!\n", uncompress_fail);
     fflush(stdout);
   }
 };
@@ -128,8 +128,6 @@ void StartDeltaUncompress(AllData &data, const DeltaCompressType type,
       const string &original = data.key_value[delta_key];
       if (!ok) {
         ++stat.uncompress_fail;
-        // cerr << "original value:" << original << endl;
-        // cerr << "compressed delta:" << delta << endl;
       }
     }
   }

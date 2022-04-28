@@ -37,7 +37,7 @@ struct HumanReadable {
     mantissa = ceil(mantissa * 10.) / 10.;
 
     stringstream ss;
-    ss << setprecision(2) << mantissa;
+    ss << fixed << setprecision(2) << mantissa;
     string res = ss.str();
     res += "BKMGTPE"[magnitude];
     if (magnitude)

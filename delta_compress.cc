@@ -73,7 +73,7 @@ bool DeltaCompress(DeltaCompressType type, const string &input,
     break;
   }
   case kGdelta_original: {
-    if (input.length() > 64 * 1024) {
+    if (input.length() >= 64 * 1024 || base.length() >= 64 * 1024) {
       // Can't compress more than 64KB
       ok = false;
       break;
