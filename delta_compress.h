@@ -15,14 +15,15 @@ enum DeltaCompressType : uint8_t {
   kNoDeltaCompression = 0,
   kXDelta = 1, // traditional delta compression algorithm
   kEDelta = 2, // fastest but also low compression ratio
-  kGdelta_original = 3,
-  kGDelta = 4, // faster and higher compression ratio than Xdelta
-  kMaxDeltaCompression
-  
+  kGDelta = 3, // faster and higher compression ratio than Xdelta
+  kGdelta_original = 4,
+  kGdelta_init = 5,
+  kNumberOfDeltaCompression
 };
 
-const static string name[5]{"no delta compression", "xdelta", "edelta",
-                             "gdelta_original", "gdelta"};
+const static string name[kNumberOfDeltaCompression]{
+    "no delta compression", "xdelta",     "edelta", "gdelta",
+    "gdelta_original",      "gdelta_init"};
 
 inline string ToString(DeltaCompressType type) { return name[type]; }
 

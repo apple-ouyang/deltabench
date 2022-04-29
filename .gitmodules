@@ -11,3 +11,7 @@
 	path = gdelta_original
 	url = https://github.com/apple-ouyang/gdelta.git
 	branch = original_gdelta
+[submodule "gdelta_init"]
+	path = gdelta_init
+	url = https://github.com/apple-ouyang/gdelta.git
+	branch = gdelta_init

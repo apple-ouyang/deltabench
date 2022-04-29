@@ -2,6 +2,7 @@
 #include "edelta/src/edelta.h"
 #include "gdelta/gdelta.h"
 #include "gdelta_original/gdelta_original.h"
+#include "gdelta_init/gdelta_init.h"
 #include "util/coding.h"
 #include "xdelta/xdelta3/xdelta3.h"
 #include <cassert>
@@ -88,6 +89,19 @@ bool DeltaCompress(DeltaCompressType type, const string &input,
     ok = GoodCompressionRatio(outlen, input.size());
     break;
   }
+  case kGdelta_init: {
+    if (input.length() >= 64 * 1024 || base.length() >= 64 * 1024) {
+      // Can't compress more than 64KB
+      ok = false;
+      break;
+    }
+    gencode_init((uint8_t *)input.data(), (uint32_t)input.length(),
+            (uint8_t *)base.data(), (uint32_t)base.length(), (uint8_t *)buff,
+            (uint32_t *)&outlen);
+
+    ok = GoodCompressionRatio(outlen, input.size());
+    break;
+  }
   default: {
   } // Do not recognize this compression type
   }
@@ -113,7 +127,7 @@ bool DeltaUncompress(DeltaCompressType type, const string &delta,
   buff = new unsigned char[original_length];
   size_t output_size = 0;
   assert(type != kNoDeltaCompression);
-  bool ok = false;
+  bool ok = true;
 
   switch (type) {
   case kXDelta: {
@@ -122,35 +136,34 @@ bool DeltaUncompress(DeltaCompressType type, const string &delta,
         base.size(), (uint8_t *)buff, &output_size, original_length, 0);
 
     if (s != 0) {
-      cerr << "Corrupted compressed data by kXDelta";
+      cerr << "xdelta compress fail" << endl;
+      ok = false;
       break;
     }
-    ok = true;
-    output->assign(buff, buff + output_size);
     break;
   }
   case kEDelta: {
     EDeltaDecode((uint8_t *)delta_copy.data(), delta_copy.size(),
                  (uint8_t *)base.data(), base.size(), (uint8_t *)buff,
                  (uint32_t *)&output_size);
-    ok = true;
-    output->assign(buff, buff + output_size);
     break;
   }
   case kGDelta: {
     gdecode((uint8_t *)delta_copy.data(), delta_copy.size(),
             (uint8_t *)base.data(), base.size(), (uint8_t **)&buff,
             (uint32_t *)&output_size);
-    ok = true;
-    output->assign(buff, buff + output_size);
     break;
   }
   case kGdelta_original: {
     gdecode_original((uint8_t *)delta_copy.data(), delta_copy.size(),
                      (uint8_t *)base.data(), base.size(), (uint8_t *)buff,
                      (uint32_t *)&output_size);
-    ok = true;
-    output->assign(buff, buff + output_size);
+    break;
+  }
+  case kGdelta_init:{
+    gdecode_init((uint8_t *)delta_copy.data(), delta_copy.size(),
+                     (uint8_t *)base.data(), base.size(), (uint8_t *)buff,
+                     (uint32_t *)&output_size);
     break;
   }
   default:
@@ -164,5 +177,8 @@ bool DeltaUncompress(DeltaCompressType type, const string &delta,
   }
 
   delete[] buff;
+
+  if(ok)
+    output->assign(buff, buff + output_size);
   return ok;
 }

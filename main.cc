@@ -1,6 +1,7 @@
 #include "data_reader.h"
 #include "delta_compress.h"
 #include "odess_similarity_detection.h"
+#include "gdelta_init/gdelta_init.h"
 #include <cstdint>
 #include <cstdio>
 #include <iomanip>
@@ -137,7 +138,6 @@ void TestDataSet(DataSetType dataset) {
   DataReader data_reader;
   AllData *new_data = new AllData();
   AllData &data = *new_data;
-
   switch (dataset) {
   case kWikipedia: {
     data_reader.PutWikipediaData(data);
@@ -164,11 +164,13 @@ void TestDataSet(DataSetType dataset) {
   ScanSimilarRecords(data);
   cout << "start delta compress" << endl;
   Statistics::PrintHead();
-  for (uint8_t i = kXDelta; i < kMaxDeltaCompression; ++i) {
+  for (uint8_t i = kXDelta; i < kNumberOfDeltaCompression; ++i) {
     DeltaCompressType type = (DeltaCompressType)i;
     Statistics stat;
     stat.type = type;
 
+    if (type == kGdelta_init)
+      initematrix();
     CleanCompressedDeltas(data);
     StartDeltaCompress(data, type, stat);
     StartDeltaUncompress(data, type, stat);
