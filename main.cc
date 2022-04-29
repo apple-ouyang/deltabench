@@ -164,7 +164,7 @@ void TestDataSet(DataSetType dataset) {
   ScanSimilarRecords(data);
   cout << "start delta compress" << endl;
   Statistics::PrintHead();
-  for (uint8_t i = kGdelta_original; i < kMaxDeltaCompression; ++i) {
+  for (uint8_t i = kXDelta; i < kMaxDeltaCompression; ++i) {
     DeltaCompressType type = (DeltaCompressType)i;
     Statistics stat;
     stat.type = type;
